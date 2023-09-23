@@ -1,65 +1,59 @@
-import { useState } from 'react'
-import {FiSearch} from 'react-icons/fi'
+import React, { useState } from 'react';
+import { FiSearch } from 'react-icons/fi';
 import './styles.css';
-
-import api from './services/api';
+import axios from 'axios'; 
 
 function App() {
+  const [input, setInput] = useState('');
+  const [cryptoInfo, setCryptoInfo] = useState(null);
 
-  const [input, setInput] = useState ('')
-  const [cep, setCep] = useState({})
-
-
- async function handleSearch() {
-    // 01310930/json/
-
-    if(input === '') {
-      alert("Preenche algum CEP")
+  async function handleSearch() {
+    if (input === '') {
+      alert('Digite o nome da criptomoeda');
       return;
     }
 
     try {
-      const response = await api.get(`${input}/json`);
-      setCep(response.data)
-      setInput("");
-    } 
-    catch {
-      alert("Erro ao buscar")
-      setInput("")
+      const response = await axios.get('https://data.binance.com/api/v3/ticker/24hr');
+      
+      const foundCrypto = response.data.find((crypto) => crypto.symbol === input.toUpperCase());
+
+      if (foundCrypto) {
+        setCryptoInfo(foundCrypto);
+      } else {
+        alert('Criptomoeda não encontrada');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar a criptomoeda:', error);
+      alert('Erro ao buscar a criptomoeda');
     }
   }
 
   return (
     <div className="container">
-      <h1 className="title">BUSCADOR CEP</h1>
+      <h1 className="title">BUSCAR CRIPTOMOEDAS</h1>
 
       <div className="containerInput">
-        <input type= "text"
-        placeholder="Digite seu cep"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
+        <input
+          type="text"
+          placeholder="Digite o nome da criptomoeda..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
         />
-
-          <button className="buttonSearch" onClick={handleSearch}>
-            <FiSearch size={25} color='#FFF'/>
-          </button>
-        
-
+        <button className="buttonSearch" onClick={handleSearch}>
+          <FiSearch size={25} color="#FFF" />
+        </button>
       </div>
-      {Object.keys(cep).length > 0 && (
-        <main className='main'>
 
-        <h2>CEP : {cep.cep}</h2>
-        <span>{cep.logradouro}</span>
-        <span>Complemento: {cep.completemento}</span>
-        <span>{cep.bairro}</span>
-        <span>{cep.localidade} - {cep.uf}</span>
-  
+      {cryptoInfo && (
+        <main className="main">
+          <h2>{cryptoInfo.symbol}</h2>
+          <span>Nome da Criptomoeda: {cryptoInfo.symbol}</span>
+          <span>Preço de Abertura: {cryptoInfo.openPrice}</span>
+          <span>Preço Atual: {cryptoInfo.lastPrice}</span>
+         
         </main>
       )}
-
-      
-
     </div>
   );
 }

@@ -1,9 +1,16 @@
 import axios from "axios";
 
-// https://viacep.com.br/ws/01310930/json/
 
 const api = axios.create({
-    baseURL: "https://viacep.com.br/ws/"
+    baseURL: "https://data.binance.com/api/"
 })
+
+api.get('/v3/ticket/24hr')
+.then((response) => {
+    
+})
+.catch((error) => {
+
+});
 
 export default api;
